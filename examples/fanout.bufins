@@ -1,0 +1,12 @@
+# A runnable buffer-insertion job: one inverter fanning out to four sinks (a heavy net
+# whose transition is over the limit).  Run:  vyges-buffer-insert run examples/fanout.bufins
+design:      top
+netlist:     fanout.v
+lib:         fanout.lib
+clock:       clk 2.0
+input_slew:  0.02
+output_load: 0.003
+buffer:      BUF
+max_slew:    0.18
+min_fanout:  2
+effort:      medium
