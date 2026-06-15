@@ -22,8 +22,8 @@ breaking setup. It repeats until every net is under the limit or the effort budg
   netlist + .lib + constraints ──[ vyges-buffer-insert ]──►  buffered netlist  (+ before/after slew & timing)
 ```
 
-Each candidate is scored by the [`vyges-sta-si`](https://github.com/vyges-tools/sta-si) timer on
-an ordinary **CPU — no GPU, no CUDA**. Because inserting a buffer changes the netlist topology
+Each candidate is scored by the [`vyges-sta-si`](https://github.com/vyges-tools/sta-si) timer — it's
+**pure Rust**, so you can experiment with GPUs too via [rust-gpu](https://rust-gpu.github.io/). Because inserting a buffer changes the netlist topology
 (unlike resize/vt-swap, which only swap a cell), each candidate is a fresh timing build — correct,
 and bounded by the effort budget. It is a **pre-place** structural fixup: it decides *where in the
 logical net* to split and hands placement of the new buffer back to the flow.
