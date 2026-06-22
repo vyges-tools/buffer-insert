@@ -1,6 +1,6 @@
 [package]
 name = "vyges-buffer-insert"
-version = "0.0.1"
+version = "0.1.0"
 edition = "2021"
 description = "STA-driven buffer insertion: split high-fanout / over-transition nets to fix slew and timing. Netlist in / netlist out."
 license = "Apache-2.0"
@@ -11,7 +11,7 @@ repository = "https://github.com/vyges-tools/buffer-insert"
 # One dependency: the timing engine. vyges-sta-si re-exports the shared vyges-loom readers +
 # design model, so buffer-insert needs no other deps.
 [dependencies]
-vyges-sta-si = { path = "../vyges-tools-sta-si" }
+vyges-sta-si = { git = "https://github.com/vyges-tools/sta-si", tag = "v0.1.0" }
 
 [[bin]]
 name = "vyges-buffer-insert"
