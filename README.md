@@ -62,6 +62,19 @@ vyges-buffer-insert demo                                 # buffer a built-in exa
 
 See [`examples/fanout.bufins`](examples/fanout.bufins) for a runnable example.
 
+## Domain coverage
+
+`vyges-buffer-insert` operates on the **standard-cell digital abstraction** — it splits
+over-transition / high-fanout nets in a **gate-level netlist** by inserting **standard-cell
+buffers**, each candidate scored by the digital `vyges-sta-si` timer. That makes it a **digital
+optimization** engine: it applies wherever a design is built from characterized standard cells
+with buffer cells in the Liberty. It does **not** apply to analog / mixed-signal blocks — they
+have no gate-level net topology or standard-cell buffers, and no Liberty-arc analogue for the
+timer to score. For analog / mixed-signal physical and integrity coverage, reach for the
+analog-capable Vyges engines — [`lvs`](https://github.com/vyges-tools/lvs),
+[`layout`](https://github.com/vyges-tools/layout), [`em-ir`](https://github.com/vyges-tools/em-ir),
+[`thermal`](https://github.com/vyges-tools/thermal), and [`extract`](https://github.com/vyges-tools/extract).
+
 ## Status & bounds
 
 v0 relieves over-transition nets by load-splitting with the buffer cell you name; it keeps setup
