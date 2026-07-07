@@ -196,6 +196,30 @@ fn finish(r: BufResult, cli: &Cli) {
 
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
+    if args.iter().any(|a| a == "--describe") {
+        // Machine-readable description of `run` for tooling that drives it.
+        const DESCRIBE: &str = r#"{
+  "name": "buffer-insert",
+  "summary": "STA-driven buffer insertion (split over-transition / high-fanout nets)",
+  "invocation": {
+    "args_template": ["run", "{job}"],
+    "optional": [ { "arg": "out", "flag": "-o" } ],
+    "emits_json": true
+  },
+  "inputs": {
+    "type": "object",
+    "required": ["job"],
+    "properties": {
+      "job": { "type": "string", "description": "Path to the buffer-insert job file (design, netlist, lib, clock, buffer cell, max_slew, min_fanout)." },
+      "out": { "type": "string", "description": "Path to write the buffered netlist (default: stdout)." }
+    }
+  },
+  "artifacts": [ { "role": "netlist", "from_arg": "out" } ]
+}
+"#;
+        print!("{DESCRIBE}");
+        return;
+    }
     let cli = parse_cli(&args);
 
     if cli.bug_report {
