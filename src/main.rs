@@ -214,7 +214,8 @@ fn main() {
       "out": { "type": "string", "description": "Path to write the buffered netlist (default: stdout)." }
     }
   },
-  "artifacts": [ { "role": "netlist", "from_arg": "out" } ]
+  "artifacts": [ { "role": "netlist", "from_arg": "out" } ],
+  "consumes": ["netlist", "liberty", "timing_report"]
 }
 "#;
         print!("{DESCRIBE}");
