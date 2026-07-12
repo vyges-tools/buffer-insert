@@ -178,7 +178,41 @@ fn write_netlist(text: &str, out: &Option<String>, quiet: bool) {
     }
 }
 
+// Emit structured events (stderr, never stdout) mirroring vyges-drc / vyges-lvs: one summary
+// event always, plus a per-insert event when the count is small enough to be useful.
+fn emit_buffer_insert_events(r: &BufResult) {
+    use vyges_events::{Event, Severity};
+    if r.inserted.len() <= 20 {
+        for (buf, net) in &r.inserted {
+            vyges_events::emit(
+                &Event::new("vyges-buffer-insert", Severity::Info, format!("inserted {buf} to relieve net {net}"))
+                    .with_code("BUFINS-FIX")
+                    .with_objects(vec![format!("net:{net}")]),
+            );
+        }
+    }
+    let nets: std::collections::HashSet<&str> = r.inserted.iter().map(|(_, n)| n.as_str()).collect();
+    vyges_events::emit(
+        &Event::new(
+            "vyges-buffer-insert",
+            Severity::Info,
+            format!(
+                "buffer insertion complete: {} buffer(s) inserted on {} net(s); slew {:.4} -> {:.4} ns (limit {:.4}), WNS {:.4} -> {:.4} ns",
+                r.inserted.len(),
+                nets.len(),
+                r.before_slew,
+                r.after_slew,
+                r.max_slew_limit,
+                r.before_wns,
+                r.after_wns,
+            ),
+        )
+        .with_code("BUFINS-DONE"),
+    );
+}
+
 fn finish(r: BufResult, cli: &Cli) {
+    emit_buffer_insert_events(&r);
     if cli.json {
         println!("{}", report_json(&r));
         if cli.out.is_some() {
