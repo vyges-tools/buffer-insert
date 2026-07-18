@@ -256,6 +256,10 @@ fn main() {
         const DESCRIBE: &str = r#"{
   "name": "buffer-insert",
   "summary": "STA-driven buffer insertion (split over-transition / high-fanout nets)",
+  "maturity": "structured",
+  "provenance_limitations": [
+      "The job names the netlist, Liberty and timing report; input_hash covers the job path and arguments, not their contents."
+  ],
   "invocation": {
     "args_template": ["run", "{job}"],
     "optional": [ { "arg": "out", "flag": "-o" } ],
