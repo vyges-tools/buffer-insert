@@ -49,21 +49,39 @@ fn relieves_an_over_transition_net() {
     let cfg = parse_cfg("buffer: BUF\nmax_slew: 0.18\nmin_fanout: 2\neffort: high\n").unwrap();
     let r = run_inputs(NL, LIB, &sta(2.0), &cfg).unwrap();
 
-    assert!(r.before_slew > r.max_slew_limit, "the fanout net should start over-limit");
+    assert!(
+        r.before_slew > r.max_slew_limit,
+        "the fanout net should start over-limit"
+    );
     assert!(!r.inserted.is_empty(), "a buffer should be inserted");
-    assert!(r.after_slew < r.before_slew, "worst transition should drop: {} -> {}", r.before_slew, r.after_slew);
-    assert!(r.after_wns >= 0.0, "timing must stay met (slack absorbs the buffer)");
+    assert!(
+        r.after_slew < r.before_slew,
+        "worst transition should drop: {} -> {}",
+        r.before_slew,
+        r.after_slew
+    );
+    assert!(
+        r.after_wns >= 0.0,
+        "timing must stay met (slack absorbs the buffer)"
+    );
 
     // the buffered netlist round-trips, has the BUF, and moved some sinks onto its net.
     let nl2 = netlist::parse(&r.netlist_v).unwrap();
-    let buf = nl2.insts.iter().find(|i| i.cell == "BUF").expect("a BUF was emitted");
+    let buf = nl2
+        .insts
+        .iter()
+        .find(|i| i.cell == "BUF")
+        .expect("a BUF was emitted");
     let bufnet = &buf.conns.iter().find(|(p, _)| p == "Y").unwrap().1;
     let moved = nl2
         .insts
         .iter()
         .filter(|i| i.cell == "INV" && i.conns.iter().any(|(p, n)| p == "A" && n == bufnet))
         .count();
-    assert!(moved >= 1, "at least one sink should now be driven by the buffer");
+    assert!(
+        moved >= 1,
+        "at least one sink should now be driven by the buffer"
+    );
 }
 
 #[test]
@@ -78,9 +96,13 @@ fn nothing_to_do_under_a_loose_limit() {
 #[test]
 fn dont_touch_blocks_insertion() {
     let cfg =
-        parse_cfg("buffer: BUF\nmax_slew: 0.18\nmin_fanout: 2\neffort: high\ndont_touch: u0\n").unwrap();
+        parse_cfg("buffer: BUF\nmax_slew: 0.18\nmin_fanout: 2\neffort: high\ndont_touch: u0\n")
+            .unwrap();
     let r = run_inputs(NL, LIB, &sta(2.0), &cfg).unwrap();
-    assert!(r.inserted.is_empty(), "the only over-limit driver is dont_touch");
+    assert!(
+        r.inserted.is_empty(),
+        "the only over-limit driver is dont_touch"
+    );
 }
 
 #[test]

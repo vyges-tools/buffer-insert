@@ -36,7 +36,8 @@ flags:
   --star               star this tool on GitHub ⭐
 ";
 
-const BUG_URL: &str = "https://github.com/vyges/community/issues/new?template=bug_report_template.yaml";
+const BUG_URL: &str =
+    "https://github.com/vyges/community/issues/new?template=bug_report_template.yaml";
 const FEATURE_URL: &str = "https://github.com/vyges/community/issues/new?labels=enhancement";
 const SPONSOR_URL: &str = "https://github.com/sponsors/vyges-ip";
 const STAR_URL: &str = "https://github.com/vyges-tools/buffer-insert";
@@ -45,7 +46,11 @@ fn link(label: &str, url: &str) {
     use std::io::IsTerminal;
     println!("{label}:\n  {url}");
     if std::io::stdout().is_terminal() {
-        let opener = if cfg!(target_os = "macos") { "open" } else { "xdg-open" };
+        let opener = if cfg!(target_os = "macos") {
+            "open"
+        } else {
+            "xdg-open"
+        };
         let _ = std::process::Command::new(opener).arg(url).status();
     }
 }
@@ -98,13 +103,22 @@ fn render_report(r: &BufResult) -> String {
     s.push_str("vyges-buffer-insert — buffer insertion\n");
     s.push_str(&format!(
         "  mode:    {}\n",
-        if r.eco { "post-place ECO (SPEF interconnect)" } else { "pre-place (ideal interconnect)" }
+        if r.eco {
+            "post-place ECO (SPEF interconnect)"
+        } else {
+            "pre-place (ideal interconnect)"
+        }
     ));
     s.push_str(&format!(
         "  slew:    worst {:.4} -> {:.4} ns  (limit {:.4})\n",
         r.before_slew, r.after_slew, r.max_slew_limit
     ));
-    s.push_str(&format!("  setup:   WNS {:.4} -> {:.4} ns [{}]\n", r.before_wns, r.after_wns, met(r.after_wns)));
+    s.push_str(&format!(
+        "  setup:   WNS {:.4} -> {:.4} ns [{}]\n",
+        r.before_wns,
+        r.after_wns,
+        met(r.after_wns)
+    ));
     s.push_str(&format!("  buffers: {} inserted\n", r.inserted.len()));
     for (buf, net) in &r.inserted {
         s.push_str(&format!("    {buf} relieves net {net}\n"));
@@ -153,7 +167,8 @@ library (d) {
   }
 }
 "#;
-const DEMO_JOB: &str = "design: demo\nnetlist: x\nlib: x\nclock: clk 2.0\ninput_slew: 0.02\noutput_load: 0.003\n";
+const DEMO_JOB: &str =
+    "design: demo\nnetlist: x\nlib: x\nclock: clk 2.0\ninput_slew: 0.02\noutput_load: 0.003\n";
 
 fn run_demo() -> Result<BufResult, String> {
     let sta = StaJob::parse(DEMO_JOB, "").map_err(|e| e.to_string())?;
@@ -185,13 +200,18 @@ fn emit_buffer_insert_events(r: &BufResult) {
     if r.inserted.len() <= 20 {
         for (buf, net) in &r.inserted {
             vyges_events::emit(
-                &Event::new("vyges-buffer-insert", Severity::Info, format!("inserted {buf} to relieve net {net}"))
-                    .with_code("BUFINS-FIX")
-                    .with_objects(vec![format!("net:{net}")]),
+                &Event::new(
+                    "vyges-buffer-insert",
+                    Severity::Info,
+                    format!("inserted {buf} to relieve net {net}"),
+                )
+                .with_code("BUFINS-FIX")
+                .with_objects(vec![format!("net:{net}")]),
             );
         }
     }
-    let nets: std::collections::HashSet<&str> = r.inserted.iter().map(|(_, n)| n.as_str()).collect();
+    let nets: std::collections::HashSet<&str> =
+        r.inserted.iter().map(|(_, n)| n.as_str()).collect();
     vyges_events::emit(
         &Event::new(
             "vyges-buffer-insert",
@@ -250,6 +270,10 @@ fn main() {
     }
   },
   "artifacts": [ { "role": "netlist", "from_arg": "out" } ],
+  "assertion": {
+    "id": "buffer-insertion",
+    "not_applicable": true
+  },
   "consumes": ["netlist", "liberty", "timing_report"]
 }
 "#;
@@ -271,7 +295,11 @@ fn main() {
         return link("Star vyges-buffer-insert on GitHub ⭐", STAR_URL);
     }
     if cli.version {
-        println!("vyges-buffer-insert {} ({})", vyges_buffer_insert::VERSION, env!("VYGES_GIT_SHA"));
+        println!(
+            "vyges-buffer-insert {} ({})",
+            vyges_buffer_insert::VERSION,
+            env!("VYGES_GIT_SHA")
+        );
         println!("{}", vyges_buffer_insert::COPYRIGHT);
         return;
     }
@@ -323,7 +351,10 @@ fn main() {
                 }
             };
             if cli.verbose {
-                eprintln!("buffering {} (buffer {}, max_slew {})", job.sta.design, job.cfg.buffer, job.cfg.max_slew);
+                eprintln!(
+                    "buffering {} (buffer {}, max_slew {})",
+                    job.sta.design, job.cfg.buffer, job.cfg.max_slew
+                );
             }
             match engine::run(&job) {
                 Ok(r) => finish(r, &cli),

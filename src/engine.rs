@@ -41,7 +41,9 @@ struct Cand {
 
 /// The (single input, single output) pin names of the buffer cell.
 fn buffer_pins(lib: &Lib, buf: &str) -> Result<(String, String), String> {
-    let cell = lib.cell(buf).ok_or_else(|| format!("buffer cell {buf:?} not in any .lib"))?;
+    let cell = lib
+        .cell(buf)
+        .ok_or_else(|| format!("buffer cell {buf:?} not in any .lib"))?;
     let inp = cell
         .pins
         .values()
@@ -58,7 +60,9 @@ fn buffer_pins(lib: &Lib, buf: &str) -> Result<(String, String), String> {
 fn worst_slew(timer: &Timer, nl: &Netlist, lib: &Lib) -> f64 {
     let mut worst: f64 = 0.0;
     for inst in &nl.insts {
-        let Some(cell) = lib.cell(&inst.cell) else { continue };
+        let Some(cell) = lib.cell(&inst.cell) else {
+            continue;
+        };
         for (pin, _net) in &inst.conns {
             if cell.pins.get(pin).map(|p| p.direction) == Some(Dir::Out) {
                 if let Some(id) = timer.pin(&format!("{}/{}", inst.name, pin)) {
@@ -84,7 +88,9 @@ fn worst_overslew(
         if cfg.dont_touch.iter().any(|p| glob_match(p, &inst.name)) {
             continue;
         }
-        let Some(cell) = lib.cell(&inst.cell) else { continue };
+        let Some(cell) = lib.cell(&inst.cell) else {
+            continue;
+        };
         for (pin, net) in &inst.conns {
             if cell.pins.get(pin).map(|p| p.direction) != Some(Dir::Out) {
                 continue;
@@ -92,7 +98,9 @@ fn worst_overslew(
             if tried.contains(net) {
                 continue;
             }
-            let Some(id) = timer.pin(&format!("{}/{}", inst.name, pin)) else { continue };
+            let Some(id) = timer.pin(&format!("{}/{}", inst.name, pin)) else {
+                continue;
+            };
             let slew = timer.slew(id);
             if slew <= cfg.max_slew {
                 continue;
@@ -102,7 +110,11 @@ fn worst_overslew(
                 continue;
             }
             if best.as_ref().map(|b| slew > b.slew).unwrap_or(true) {
-                best = Some(Cand { net: net.clone(), sinks, slew });
+                best = Some(Cand {
+                    net: net.clone(),
+                    sinks,
+                    slew,
+                });
             }
         }
     }
@@ -113,7 +125,9 @@ fn worst_overslew(
 fn sinks_of(nl: &Netlist, lib: &Lib, net: &str) -> Vec<(String, String)> {
     let mut v = Vec::new();
     for inst in &nl.insts {
-        let Some(cell) = lib.cell(&inst.cell) else { continue };
+        let Some(cell) = lib.cell(&inst.cell) else {
+            continue;
+        };
         for (pin, n) in &inst.conns {
             if n == net && cell.pins.get(pin).map(|p| p.direction) == Some(Dir::In) {
                 v.push((inst.name.clone(), pin.clone()));
@@ -128,7 +142,15 @@ fn sinks_of(nl: &Netlist, lib: &Lib, net: &str) -> Vec<(String, String)> {
 /// Insert a buffer on `cand.net`: a new buffer instance drives a fresh net carrying the first
 /// half of the sinks; the buffer's input stays on the original net. The original driver thus
 /// sees fewer sinks (less load) and switches faster.
-fn split_net(nl: &mut Netlist, cand: &Cand, cfg: &BufCfg, bin: &str, bout: &str, bufname: &str, bufnet: &str) {
+fn split_net(
+    nl: &mut Netlist,
+    cand: &Cand,
+    cfg: &BufCfg,
+    bin: &str,
+    bout: &str,
+    bufname: &str,
+    bufnet: &str,
+) {
     let take = (cand.sinks.len() / 2).max(1); // move at least one, leave at least one
     let move_set: HashSet<&(String, String)> = cand.sinks.iter().take(take).collect();
     for inst in &mut nl.insts {
@@ -141,7 +163,10 @@ fn split_net(nl: &mut Netlist, cand: &Cand, cfg: &BufCfg, bin: &str, bout: &str,
     nl.insts.push(Inst {
         cell: cfg.buffer.clone(),
         name: bufname.to_string(),
-        conns: vec![(bin.to_string(), cand.net.clone()), (bout.to_string(), bufnet.to_string())],
+        conns: vec![
+            (bin.to_string(), cand.net.clone()),
+            (bout.to_string(), bufnet.to_string()),
+        ],
     });
 }
 
@@ -165,7 +190,12 @@ pub fn run(job: &BufJob) -> Result<BufResult, String> {
 }
 
 /// Run on already-parsed inputs (the `demo` path; ideal interconnect, no SPEF).
-pub fn run_inputs(nl_text: &str, lib_text: &str, sta: &StaJob, cfg: &BufCfg) -> Result<BufResult, String> {
+pub fn run_inputs(
+    nl_text: &str,
+    lib_text: &str,
+    sta: &StaJob,
+    cfg: &BufCfg,
+) -> Result<BufResult, String> {
     let nl = netlist::parse(nl_text).map_err(|e| e.to_string())?;
     let lib = Lib::parse(lib_text).map_err(|e| e.to_string())?;
     optimize(nl, &lib, sta, None, cfg)
@@ -192,7 +222,9 @@ pub fn optimize(
 
     for _ in 0..cfg.effort {
         let cur_slew = worst_slew(&timer, &nl, lib);
-        let Some(cand) = worst_overslew(&timer, &nl, lib, cfg, &tried) else { break };
+        let Some(cand) = worst_overslew(&timer, &nl, lib, cfg, &tried) else {
+            break;
+        };
 
         let mut trial = nl.clone();
         let bufname = format!("__buf_{counter}");

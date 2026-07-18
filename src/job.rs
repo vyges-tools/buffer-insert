@@ -52,20 +52,29 @@ pub fn parse_cfg(text: &str) -> Result<BufCfg, String> {
     let mut dont_touch = Vec::new();
     for raw in text.lines() {
         let line = raw.split('#').next().unwrap_or("").trim();
-        let Some((k, v)) = line.split_once(':') else { continue };
+        let Some((k, v)) = line.split_once(':') else {
+            continue;
+        };
         let (k, v) = (k.trim().to_lowercase(), v.trim());
         match k.as_str() {
             "buffer" => buffer = v.to_string(),
             "max_slew" => {
-                max_slew = v.parse().map_err(|_| format!("max_slew must be a number, got {v:?}"))?
+                max_slew = v
+                    .parse()
+                    .map_err(|_| format!("max_slew must be a number, got {v:?}"))?
             }
             "min_fanout" => {
-                min_fanout = v.parse().map_err(|_| format!("min_fanout must be an integer, got {v:?}"))?
+                min_fanout = v
+                    .parse()
+                    .map_err(|_| format!("min_fanout must be an integer, got {v:?}"))?
             }
             "effort" => effort_word = v.to_lowercase(),
             "dont_touch" => {
                 dont_touch.extend(
-                    v.split([',', ' ']).map(str::trim).filter(|s| !s.is_empty()).map(str::to_string),
+                    v.split([',', ' '])
+                        .map(str::trim)
+                        .filter(|s| !s.is_empty())
+                        .map(str::to_string),
                 );
             }
             _ => {}
@@ -80,7 +89,13 @@ pub fn parse_cfg(text: &str) -> Result<BufCfg, String> {
         "high" => 500,
         other => return Err(format!("effort must be low|medium|high, got {other:?}")),
     };
-    Ok(BufCfg { buffer, max_slew, min_fanout, effort, dont_touch })
+    Ok(BufCfg {
+        buffer,
+        max_slew,
+        min_fanout,
+        effort,
+        dont_touch,
+    })
 }
 
 /// A tiny glob matcher: supports a single leading and/or trailing `*` (e.g. `clk_*`,
