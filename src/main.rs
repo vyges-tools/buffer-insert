@@ -14,12 +14,12 @@ use vyges_buffer_insert::job::{parse_cfg, BufJob};
 use vyges_sta_si::job::StaJob;
 
 const USAGE: &str = "\
-vyges-buffer-insert — STA-driven buffer insertion (split over-transition / high-fanout nets)
+vyges loom buffer-insert — STA-driven buffer insertion (split over-transition / high-fanout nets)
 
 usage:
-  vyges-buffer-insert run   JOB  [-o OUT] [--json] [--fail-on-violation]   buffer -> resized netlist
-  vyges-buffer-insert check JOB                                            validate the job
-  vyges-buffer-insert demo                                                 buffer a built-in example (no files)
+  vyges loom buffer-insert run   JOB  [-o OUT] [--json] [--fail-on-violation]   buffer -> resized netlist
+  vyges loom buffer-insert check JOB                                            validate the job
+  vyges loom buffer-insert demo                                                 buffer a built-in example (no files)
 
 flags:
   -o FILE              write the buffered netlist to FILE (default: stdout)
