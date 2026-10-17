@@ -167,6 +167,7 @@ fn split_net(
             (bin.to_string(), cand.net.clone()),
             (bout.to_string(), bufnet.to_string()),
         ],
+        ties: Vec::new(),
     });
 }
 
