@@ -168,6 +168,7 @@ const DEMO_NL: &str = "module top ( a, o1, o2, o3, o4 ); input a; output o1, o2,
                        endmodule";
 const DEMO_LIB: &str = r#"
 library (d) {
+  lu_table_template (t) { variable_1 : input_net_transition; variable_2 : total_output_net_capacitance; }
   cell (INV) {
     pin (A) { direction : input; capacitance : 0.0030; }
     pin (Y) { direction : output;

@@ -8,6 +8,7 @@ use vyges_sta_si::netlist;
 // An inverter whose transition blows up with load, plus a non-inverting BUF to relieve it.
 const LIB: &str = r#"
 library (d) {
+  lu_table_template (t) { variable_1 : input_net_transition; variable_2 : total_output_net_capacitance; }
   cell (INV) {
     pin (A) { direction : input; capacitance : 0.0030; }
     pin (Y) { direction : output;
