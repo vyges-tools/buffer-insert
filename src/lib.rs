@@ -13,9 +13,20 @@
 //! buffer back to the flow. Inputs/outputs are files: a `.bufins` job + Liberty in, a buffered
 //! netlist + a before/after transition & timing report out. Pure std, unit-tested offline.
 
+// The crate's own name inside it: the command-line entry ([`cli_main`]) is built into the
+// library too, and its `vyges_buffer_insert::…` paths resolve here.
+extern crate self as vyges_buffer_insert;
+
 pub mod emit;
 pub mod engine;
 pub mod job;
 
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 pub const COPYRIGHT: &str = "© 2026 Vyges. All Rights Reserved.  https://vyges.com";
+
+/// The `vyges-buffer-insert` command-line entry (the binary's `main`), built into the library too so a
+/// suite binary can link every engine and run the one it is invoked as.
+#[cfg(feature = "suite")]
+#[doc(hidden)]
+#[path = "main.rs"]
+pub mod cli_main;
