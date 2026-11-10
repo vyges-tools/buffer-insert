@@ -1,5 +1,7 @@
 # vyges-buffer-insert
 
+**[Download Loom](https://vyges.com/products/vyges-cli/#install)** · install the free [Vyges CLI](https://vyges.com/products/vyges-cli/), then `vyges install loom`
+
 **STA-driven buffer insertion**: a gate-level netlist in, a **buffered netlist** out — buffers
 added where a driver's output transition is too slow, scored by a real static-timing engine.
 
